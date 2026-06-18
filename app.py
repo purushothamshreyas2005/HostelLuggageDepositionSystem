@@ -13,10 +13,10 @@ from email.mime.text import MIMEText
 
 app = Flask(__name__)
 
-DATABASE_URL = os.environ.get("postgresql://postgres:23MIS0617n7u#aB37lW@db.faiybyviuogakwlifjhy.supabase.co:5432/postgres")
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-EMAIL = os.environ.get("luggage.deposition.vithostels@gmail.com")
-PASSWORD = os.environ.get("bmfpshoxjezmxbsl")
+EMAIL = os.environ.get("EMAIL")
+PASSWORD = os.environ.get("PASSWORD")
 
 def get_connection():
     return psycopg2.connect(DATABASE_URL)
