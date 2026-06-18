@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin:0;
+    font-family:Poppins;
+    background:linear-gradient(135deg,#0b1220,#1e3a8a);
+    color:white;
+}
+
+.container {
+    width:90%;
+    margin:auto;
+    margin-top:20px;
+}
+
+h2 { text-align:center; }
+
+.input-box {
+    text-align:center;
+    margin:20px;
+}
+
+input {
+    padding:14px;
+    width:320px;
+    border-radius:25px;
+    border:none;
+    text-align:center;
+    margin:10px;
+}
+
+.table-box {
+    margin-top:20px;
+    background:#111827;
+    padding:15px;
+    border-radius:20px;
+}
+
+table {
+    width:100%;
+    border-collapse:collapse;
+}
+
+th { background:#1e3a8a; padding:10px; }
+td { padding:8px; text-align:center; }
+
+tr:nth-child(even) { background:#1f2937; }
+
+.actions { text-align:center; margin-top:20px; }
+
+.btn {
+    padding:12px 25px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    margin:10px;
+}
+
+.check { background:#2563eb; color:white; }
+.relieve { background:#16a34a; color:white; }
+.loading-popup{
+
+    display:none;
+
+    position:fixed;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background:rgba(0,0,0,.55);
+
+    backdrop-filter:blur(5px);
+
+    justify-content:center;
+    align-items:center;
+
+    z-index:9999;
+
+}
+
+.loading-card{
+
+    width:350px;
+
+    padding:35px;
+
+    border-radius:22px;
+
+    background:#111827;
+
+    text-align:center;
+
+    color:white;
+
+    box-shadow:
+        0 0 25px #38bdf8,
+        0 0 60px rgba(56,189,248,.5);
+
+}
+
+.spinner{
+
+    width:65px;
+    height:65px;
+
+    margin:auto;
+    margin-bottom:20px;
+
+    border:6px solid rgba(255,255,255,.2);
+
+    border-top:6px solid #38bdf8;
+
+    border-radius:50%;
+
+    animation:spin 1s linear infinite;
+
+}
+
+@keyframes spin{
+
+    from{ transform:rotate(0deg); }
+
+    to{ transform:rotate(360deg); }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Check-Out</h2>
+
+<input type="hidden" id="sup_name" value="{{ supervisor_name }}">
+<input type="hidden" id="dorm" value="{{ dorm }}">
+
+<div class="input-box">
+<input id="reg" placeholder="Enter Registration Number" oninput="fetchLuggage()">
+</div>
+
+<div id="table" class="table-box"></div>
+
+<div class="input-box">
+<input id="ulid" placeholder="Enter ULID">
+</div>
+
+<div class="actions">
+<button class="btn check" onclick="checkULID()">CHECK</button>
+<button class="btn relieve" id="relieveBtn" style="display:none;" onclick="relieve()">RELIEVE LUGGAGE</button>
+</div>
+
+</div>
+
+<script>
+
+let dataStore = [];
+let validated = new Set();
+
+/* FETCH */
+function fetchLuggage(){
+
+    let reg = document.getElementById("reg").value;
+
+    if(!reg) return;
+
+    fetch("/get_luggage_full",{
+        method:"POST",
+        headers:{"Content-Type":"application/x-www-form-urlencoded"},
+        body:"reg="+reg
+    })
+    .then(r=>r.json())
+    .then(data=>{
+
+        dataStore = data;
+        validated.clear();
+
+        if(data.length === 0){
+            document.getElementById("table").innerHTML =
+            `<h3>LUGGAGE NOT DEPOSITED FOR ${reg}</h3>`;
+            return;
+        }
+
+        render();
+    });
+}
+
+/* RENDER */
+function render(){
+
+    let html = `
+    <table>
+    <tr>
+    <th>Item</th>
+    <th>ULID</th>
+    <th>Check-In Time</th>
+    <th>Status</th>
+    <th>Validate</th>
+    </tr>`;
+
+    dataStore.forEach(i=>{
+        html += `
+        <tr>
+        <td>${i.item}</td>
+        <td>${i.ulid}</td>
+        <td>${i.time}</td>
+        <td>${i.status}</td>
+        <td>${validated.has(i.ulid) ? "Checked-out" : "-"}</td>
+        </tr>`;
+    });
+
+    html += "</table>";
+    document.getElementById("table").innerHTML = html;
+
+    // 🔥 Show relieve only when all validated
+    let totalPending = dataStore.filter(i => i.status === "Stored").length;
+
+if(validated.size === totalPending && totalPending > 0){
+    document.getElementById("relieveBtn").style.display = "inline-block";
+} else {
+    document.getElementById("relieveBtn").style.display = "none";
+}
+}
+
+/* CHECK ULID */
+function checkULID(){
+
+    let reg = document.getElementById("reg").value.trim();
+    let ulid = document.getElementById("ulid").value.trim();
+
+    if(!ulid.startsWith(reg)){
+        alert("Invalid ULID for this student");
+        return;
+    }
+
+    let found = dataStore.find(i => i.ulid === ulid);
+
+    if(!found){
+        alert("ULID not found");
+        return;
+    }
+
+    // 🔥 NEW FIX
+    if(found.status === "Collected"){
+        alert("This item is already checked-out");
+        return;
+    }
+
+    if(validated.has(ulid)){
+        alert("Already validated");
+        return;
+    }
+
+    validated.add(ulid);
+
+    render();
+}
+
+/* RELIEVE */
+function relieve(){
+
+    let reg = document.getElementById("reg").value;
+
+    let ulids = Array.from(validated);
+
+    if(ulids.length===0){
+
+        alert("No items validated");
+
+        return;
+
+    }
+
+    showLoading();
+
+    fetch("/final_checkout",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            reg,
+
+            ulids,
+
+            supervisor_name:document.getElementById("sup_name").value,
+
+            dorm:document.getElementById("dorm").value
+
+        })
+
+    })
+
+    .then(r=>r.json())
+
+    .then(data=>{
+
+    showSuccess("Luggage Relieved Successfully");
+
+})
+
+    .catch(err=>{
+
+        showError("Something went wrong.");
+
+        console.log(err);
+
+    });
+
+}
+
+// 🔥 GLOBAL ENTER HANDLER
+document.querySelectorAll("input").forEach(inp=>{
+
+    inp.addEventListener("keypress", function(e){
+
+        if(e.key === "Enter"){
+            e.preventDefault();
+
+            let id = this.id;
+
+            // 🔹 CHECKOUT PAGE LOGIC
+            if(id === "ulid"){
+                if(typeof checkULID === "function"){
+                    checkULID();
+                }
+                this.value = "";
+                return;
+            }
+
+            if(id === "reg"){
+                if(typeof fetchLuggage === "function"){
+                    fetchLuggage();
+                }
+                // DON'T CLEAR REG (important)
+                return;
+            }
+
+            // 🔹 CHECKIN PAGE LOGIC
+            if(id === "reg"){
+                // already handled above
+                return;
+            }
+
+            // 🔹 DEFAULT BEHAVIOR
+            // clear other inputs automatically
+            setTimeout(()=>{
+                this.value = "";
+            }, 50);
+        }
+
+    });
+
+});
+function showLoading(){
+
+    document.getElementById("loadingPopup").style.display="flex";
+
+    document.getElementById("loadingCard").style.boxShadow=
+    "0 0 25px #38bdf8,0 0 60px rgba(56,189,248,.5)";
+
+    document.getElementById("loadingContent").innerHTML=`
+
+        <div class="spinner"></div>
+
+        <h2>Processing...</h2>
+
+        <p>Please wait while we complete your request...</p>
+
+    `;
+
+}
+
+function hideLoading(){
+
+    document.getElementById("loadingPopup").style.display="none";
+
+}
+function showSuccess(msg){
+
+    document.getElementById("loadingCard").style.boxShadow=
+    "0 0 25px #22c55e,0 0 60px rgba(34,197,94,.5)";
+
+    document.getElementById("loadingContent").innerHTML=`
+
+        <div style="font-size:70px;">✅</div>
+
+        <h2>Success</h2>
+
+        <p>${msg}</p>
+
+    `;
+
+    setTimeout(()=>{
+
+    location.reload();
+
+},2000);
+
+}
+function showError(msg){
+
+    document.getElementById("loadingPopup").style.display="flex";
+
+    document.getElementById("loadingCard").style.boxShadow=
+    "0 0 25px #ef4444,0 0 60px rgba(239,68,68,.5)";
+
+    document.getElementById("loadingContent").innerHTML=`
+
+        <div style="font-size:70px;">❌</div>
+
+        <h2>Failed</h2>
+
+        <p>${msg}</p>
+
+    `;
+
+}
+</script>
+<div id="loadingPopup" class="loading-popup">
+
+    <div class="loading-card" id="loadingCard">
+
+        <div id="loadingContent">
+
+            <div class="spinner"></div>
+
+            <h2>Processing...</h2>
+
+            <p>Please wait while we complete your request...</p>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+</body>
+</html>

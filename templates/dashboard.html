@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin:0;
+    font-family:Poppins;
+    background:#0b1220;
+    color:white;
+}
+
+/* CENTER */
+.container {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-top:60px;
+}
+
+h2 {
+    margin-bottom:30px;
+}
+
+/* INPUT ROW */
+.top {
+    display:flex;
+    gap:30px;
+    margin-bottom:20px;
+}
+
+/* INPUT STYLE */
+input, select {
+    padding:14px;
+    width:300px;
+    border-radius:25px;
+    border:none;
+    text-align:center;
+    transition:0.3s;
+}
+
+input:hover, select:hover {
+    box-shadow:0 0 12px #38bdf8;
+}
+
+/* MESSAGE */
+#msg{
+    min-height:30px;
+    margin-bottom:25px;
+    font-size:18px;
+    font-weight:600;
+}
+
+/* ACTION CARDS */
+.actions {
+    display:none;
+    gap:60px;
+}
+
+/* CARD BASE */
+.card {
+    width:220px;
+    height:220px;
+    border-radius:25px;
+    cursor:pointer;
+    transition:0.3s ease;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+/* COLORS */
+.checkin {
+    background:#16a34a;
+}
+
+.checkout {
+    background:#dc2626;
+}
+
+/* ICON */
+.card img {
+    width:70px;
+    margin-bottom:15px;
+}
+
+/* TEXT */
+.card p {
+    font-size:18px;
+    font-weight:600;
+}
+
+/* HOVER */
+.card:hover {
+    transform:translateY(-10px) scale(1.05);
+}
+
+.checkin:hover {
+    box-shadow:0 0 25px rgba(34,197,94,0.7);
+}
+
+.checkout:hover {
+    box-shadow:0 0 25px rgba(239,68,68,0.7);
+}
+
+/* BUTTON RESET */
+button {
+    background:none;
+    border:none;
+    color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>{{ hostel }} Dashboard</h2>
+
+<div class="top">
+
+<input id="sup_id" placeholder="Supervisor ID (5 digits)">
+
+<input id="sup_name"
+       placeholder="Supervisor Name"
+       readonly>
+
+<select id="dorm">
+<option value="">Select Dorm</option>
+
+{% for d in dorms %}
+<option value="{{d}}">{{d}}</option>
+{% endfor %}
+
+</select>
+
+</div>
+
+<!-- NEW MESSAGE AREA -->
+
+<div id="msg"></div>
+
+<div class="actions" id="actions">
+
+<form action="/checkin" method="POST">
+
+<input type="hidden"
+       name="hostel"
+       value="{{hostel}}">
+
+<input type="hidden"
+       name="supervisor_name"
+       id="sup_name_input">
+
+<input type="hidden"
+       name="dorm"
+       id="dorm_input">
+
+<button class="card checkin">
+
+<img src="https://cdn-icons-png.flaticon.com/512/1828/1828474.png">
+
+<p>Check-In</p>
+
+</button>
+
+</form>
+
+<form action="/checkout" method="POST">
+
+<input type="hidden"
+       name="hostel"
+       value="{{hostel}}">
+
+<input type="hidden"
+       name="supervisor_name"
+       id="sup_name_input2">
+
+<input type="hidden"
+       name="dorm"
+       id="dorm_input2">
+
+<button class="card checkout">
+
+<img src="https://cdn-icons-png.flaticon.com/512/1828/1828479.png">
+
+<p>Check-Out</p>
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+<script>
+
+let sup_id=document.getElementById("sup_id");
+
+let sup_name=document.getElementById("sup_name");
+
+let dorm=document.getElementById("dorm");
+
+let actions=document.getElementById("actions");
+
+let msg=document.getElementById("msg");
+
+let sup_name_input=document.getElementById("sup_name_input");
+
+let dorm_input=document.getElementById("dorm_input");
+
+let sup_name_input2=document.getElementById("sup_name_input2");
+
+let dorm_input2=document.getElementById("dorm_input2");
+
+function validate(){
+
+    sup_name_input.value=sup_name.value;
+    dorm_input.value=dorm.value;
+
+    sup_name_input2.value=sup_name.value;
+    dorm_input2.value=dorm.value;
+
+    if(
+        sup_id.value.length==5 &&
+        sup_name.value!=="" &&
+        dorm.value!==""
+    ){
+        actions.style.display="flex";
+    }
+    else{
+        actions.style.display="none";
+    }
+
+}
+
+sup_id.addEventListener("input",function(){
+
+    if(this.value.length==5){
+
+        fetch("/get_supervisor",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/x-www-form-urlencoded"
+            },
+
+            body:
+            "sup_id="+this.value+
+            "&hostel={{hostel}}"
+
+        })
+
+        .then(r=>r.json())
+
+        .then(d=>{
+
+            if(d.name && d.name.trim()!==""){
+
+                sup_name.value=d.name;
+
+                msg.innerHTML=
+                "<span style='color:#22c55e;'>✅ Supervisor Details Fetched Successfully</span>";
+
+            }
+
+            else{
+
+                sup_name.value="";
+
+                msg.innerHTML=
+                "<span style='color:#ef4444;'>❌ Supervisor Not Found</span>";
+
+            }
+
+            validate();
+
+        });
+
+    }
+
+    else{
+
+        sup_name.value="";
+
+        msg.innerHTML="";
+
+        validate();
+
+    }
+
+});
+
+dorm.addEventListener("change",validate);
+
+</script>
+
+</body>
+</html>

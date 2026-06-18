@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin:0;
+    font-family:Poppins;
+    background:linear-gradient(135deg,#0b1220,#1e3a8a);
+    color:white;
+}
+
+/* 🔥 TOP RIGHT CLOCK */
+.clock {
+    position:absolute;
+    top:20px;
+    right:30px;
+    font-size:14px;
+    opacity:0.9;
+}
+
+/* CENTER */
+.container {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+}
+
+/* LOGO */
+.logo {
+    width:200px;
+    margin-bottom:10px;
+}
+
+/* TITLE */
+h1 {
+    font-size:32px;
+    margin-bottom:40px;
+    text-align:center;
+}
+
+/* 🔥 CARDS LAYOUT */
+.cards {
+    display:flex;
+    gap:50px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+/* 🔥 CARD BASE */
+.card {
+    width:220px;
+    height:220px;
+    border-radius:28px;
+    cursor:pointer;
+    transition:all 0.3s ease;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    font-weight:600;
+    position:relative;
+    overflow:hidden;
+}
+
+/* ICON */
+.card img {
+    width:80px;
+    margin-bottom:15px;
+}
+
+/* TEXT */
+.card span {
+    font-size:18px;
+}
+
+/* 🔵 MH */
+.mh {
+    background:linear-gradient(135deg,#2563eb,#1e40af);
+    color:white;
+}
+
+/* 🌸 LH */
+.lh {
+    background:linear-gradient(135deg,#ec4899,#be185d);
+    color:white;
+}
+
+/* ⚪ ADMIN */
+.admin {
+    background:linear-gradient(135deg,#ffffff,#e5e7eb);
+    color:#111827;
+}
+
+/* 🔥 HOVER */
+.card:hover {
+    transform:translateY(-12px) scale(1.05);
+}
+
+.mh:hover {
+    box-shadow:0 20px 40px rgba(37,99,235,0.5);
+}
+
+.lh:hover {
+    box-shadow:0 20px 40px rgba(236,72,153,0.5);
+}
+
+.admin:hover {
+    box-shadow:0 20px 40px rgba(255,255,255,0.4);
+}
+
+/* 🔥 REFLECTION EFFECT */
+.card::before {
+    content:"";
+    position:absolute;
+    top:-50%;
+    left:-50%;
+    width:200%;
+    height:200%;
+    background:linear-gradient(120deg,transparent,rgba(255,255,255,0.2),transparent);
+    transform:rotate(25deg);
+    transition:0.5s;
+    opacity:0;
+}
+
+.card:hover::before {
+    opacity:1;
+    top:-20%;
+    left:-20%;
+}
+
+/* MODAL */
+.modal {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.7);
+    backdrop-filter:blur(6px);
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-box {
+    background:#0f172a;
+    padding:30px;
+    border-radius:20px;
+    width:320px;
+    text-align:center;
+    box-shadow:0 0 30px rgba(0,0,0,0.8);
+}
+
+.modal-box h3 {
+    margin-bottom:20px;
+}
+
+.modal-box input {
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border:none;
+    border-radius:10px;
+    background:#1e293b;
+    color:white;
+    outline:none;
+}
+
+.modal-box input::placeholder {
+    color:#9ca3af;
+}
+
+.modal-box button {
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.login-btn {
+    background:linear-gradient(135deg,#2563eb,#3b82f6);
+}
+
+.close-btn {
+    background:#dc2626;
+}
+
+.login-btn:hover {
+    background:linear-gradient(135deg,#1d4ed8,#2563eb);
+}
+
+.close-btn:hover {
+    background:#b91c1c;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔥 CLOCK -->
+<div class="clock" id="clock"></div>
+
+<div class="container">
+
+<img src="https://vit.ac.in/wp-content/uploads/2023/06/header-logo-2048x604.webp" class="logo">
+
+<h1>Hostel Luggage Management System</h1>
+
+<div class="cards">
+
+<!-- MH -->
+<form method="POST" action="/dashboard">
+<input type="hidden" name="hostel" value="MH">
+<button class="card mh">
+<img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
+<span>Mens Hostel</span>
+</button>
+</form>
+
+<!-- LH -->
+<form method="POST" action="/dashboard">
+<input type="hidden" name="hostel" value="LH">
+<button class="card lh">
+<img src="https://cdn-icons-png.flaticon.com/512/4140/4140051.png">
+<span>Ladies Hostel</span>
+</button>
+</form>
+
+<!-- ADMIN -->
+<div class="card admin" onclick="openModal()">
+<img src="https://cdn-icons-png.flaticon.com/128/3033/3033337.png">
+<span>Admin</span>
+</div>
+
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <h3>Admin Login</h3>
+
+        <input id="username" placeholder="Login ID">
+        <input id="password" type="password" placeholder="Password">
+
+        <button class="login-btn" onclick="submitLogin()">Login</button>
+        <button class="close-btn" onclick="closeModal()">Cancel</button>
+    </div>
+</div>
+
+<script>
+
+/* 🔥 CLOCK FUNCTION */
+function updateClock(){
+    let now = new Date();
+
+    let dd = String(now.getDate()).padStart(2, '0');
+    let mm = String(now.getMonth() + 1).padStart(2, '0');
+    let yyyy = now.getFullYear();
+
+    let time = now.toLocaleTimeString();
+
+    let formattedDate = `${dd} | ${mm} | ${yyyy}`;
+
+    document.getElementById("clock").innerHTML = formattedDate + " | " + time;
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+/* MODAL */
+function openModal(){
+    document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal(){
+    document.getElementById("modal").style.display = "none";
+}
+
+/* LOGIN */
+function submitLogin(){
+
+    let user = document.getElementById("username").value;
+    let pass = document.getElementById("password").value;
+
+    if(!user || !pass){
+        alert("Enter credentials");
+        return;
+    }
+
+    if(user === pass && (user === "VITMH" || user === "VITLH")){
+
+        let form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/admin_login";
+
+        let u = document.createElement("input");
+        u.name = "username";
+        u.value = user;
+
+        let p = document.createElement("input");
+        p.name = "password";
+        p.value = pass;
+
+        form.appendChild(u);
+        form.appendChild(p);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+    else{
+        alert("Invalid Credentials");
+    }
+}
+
+</script>
+
+</body>
+</html>
