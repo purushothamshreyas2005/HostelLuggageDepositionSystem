@@ -130,7 +130,7 @@ def unique_num():
             return str(num)
 
 # ---------- FINAL CHECKIN ----------
-@app.route('/final_checkin', methods=['POST'])
+'''@app.route('/final_checkin', methods=['POST'])
 def final_checkin():
     print("🔥 final_checkin route called")
     data = request.json
@@ -365,8 +365,71 @@ Regards,<br>
     server.ehlo()
     server.login(EMAIL, PASSWORD)
     server.send_message(msg)
-    server.quit()
+    server.quit()'''
+@app.route('/final_checkin', methods=['POST'])
+def final_checkin():
 
+    try:
+
+        print("🔥 final_checkin route called")
+
+        data = request.json
+        print(data)
+
+        reg = data['reg']
+        items = data['items']
+        dorm = data.get('dorm')
+        supervisor = data.get('supervisor_name')
+
+        conn = get_connection()
+        cur = conn.cursor()
+
+        for it in items:
+
+            cur.execute("""
+                SELECT COUNT(*) FROM luggage
+                WHERE regno=%s AND item=%s
+            """, (reg, it['name']))
+
+            existing_count = cur.fetchone()[0]
+            new_items = it['qty'] - existing_count
+
+            if new_items <= 0:
+                continue
+
+            new_ulids = it["ulids"][existing_count:]
+
+            for ulid in new_ulids:
+
+                cur.execute("""
+                    INSERT INTO luggage
+                    (ulid, regno, item, num_bags, slot_id,
+                    checkin_time, status, dorm)
+                    VALUES(%s,%s,%s,1,'AUTO',
+                    CURRENT_TIMESTAMP,'Stored',%s)
+                """, (ulid, reg, it["name"], dorm))
+
+        conn.commit()
+        conn.close()
+
+        try:
+            send_checkin_email(reg, supervisor, dorm)
+        except Exception as e:
+            print("EMAIL ERROR:", e)
+
+        return jsonify({"status": "ok"})
+
+    except Exception as e:
+
+        import traceback
+
+        print("=========== FINAL CHECKIN ERROR ===========")
+        print(traceback.format_exc())
+
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
 
 # ---------- FINAL CHECKOUT ----------
 @app.route('/final_checkout', methods=['POST'])
