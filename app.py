@@ -130,7 +130,242 @@ def unique_num():
             return str(num)
 
 # ---------- FINAL CHECKIN ----------
+'''@app.route('/final_checkin', methods=['POST'])
+def final_checkin():
+    print("🔥 final_checkin route called")
+    data = request.json
+    print(data)
+    reg = data['reg']
+    items = data['items']
+    dorm = data.get('dorm')
+    supervisor = data.get('supervisor_name')
 
+    conn = get_connection()
+    cur = conn.cursor()
+
+    for it in items:
+        cur.execute("""
+            SELECT COUNT(*) FROM luggage
+            WHERE regno=%s AND item=%s
+        """, (reg, it['name']))
+
+        existing_count = cur.fetchone()[0]
+        new_items = it['qty'] - existing_count
+
+        if new_items <= 0:
+            continue
+        
+        # Take only the newly generated ULIDs from the frontend
+        new_ulids = it["ulids"][existing_count:]
+
+        for ulid in new_ulids:
+
+            print("===================================")
+            print("INSERTING RECORD")
+            print("ULID :", ulid)
+            print("REG  :", reg)
+            print("ITEM :", it["name"])
+            print("DORM :", dorm)
+
+            try:
+                cur.execute("""
+            INSERT INTO luggage
+            (ulid, regno, item, num_bags, slot_id,
+             checkin_time, status, dorm)
+            VALUES(%s,%s,%s,1,'AUTO',
+                   CURRENT_TIMESTAMP,'Stored',%s)
+        """, (ulid,reg,it["name"],dorm))
+                print("✅ INSERT SUCCESS")
+
+            except Exception as e:
+                print("❌ INSERT FAILED")
+                print(e)
+
+    conn.commit()
+    conn.close()
+
+    try:
+        send_checkin_email(reg, supervisor, dorm)
+    except Exception as e:
+        print("Email error:", e)
+
+    return jsonify({"status":"ok"})
+
+def send_checkin_email(reg, supervisor, dorm):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT student_name, email_id FROM students WHERE regno=%s",(reg,))
+    stu = cur.fetchone()
+
+    cur.execute("""
+        SELECT item, ulid, checkin_time
+        FROM luggage
+        WHERE regno=%s
+    """,(reg,))
+
+    rows = cur.fetchall()
+    conn.close()
+
+    if not stu:
+        return
+
+    name, email = stu
+
+    table = """
+<table border="1" style="border-collapse:collapse;width:100%;">
+<tr style="background-color:#1e3a8a;color:white;">
+<th>Item</th>
+<th>ULID</th>
+<th>Check-In Time</th>
+</tr>
+"""
+    for r in rows:
+        table += f"<tr><td>{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td></tr>"
+    table += "</table>"
+
+    msg = MIMEMultipart()
+    msg['From'] = EMAIL
+    msg['To'] = email
+    msg['Subject'] = "Luggage Check-In Confirmation"
+    body = f"""
+<html>
+
+<body style="font-family:Arial,sans-serif;">
+
+<p>
+Dear <b>{name} ({reg})</b>,
+</p>
+
+<p>
+The following items have been deposited in
+<b>{dorm}</b>
+under your account.
+</p>
+
+<br>
+
+{table}
+
+<br>
+
+<p>
+<b>Supervisor:</b> Mr./Ms. {supervisor}
+</p>
+
+<br>
+
+<p>
+Thank you.</p>
+
+<p>
+Regards,<br>
+<b>VIT Hostel Luggage Deposition System</b>
+</p>
+
+</body>
+
+</html>
+"""
+
+    msg.attach(MIMEText(body, "html"))
+   
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+    server.login(EMAIL, PASSWORD)
+    server.send_message(msg)
+    server.quit()
+
+
+def send_checkout_email(reg, supervisor, dorm):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT student_name, email_id FROM students WHERE regno=%s",(reg,))
+    stu = cur.fetchone()
+
+    cur.execute("""
+        SELECT item, ulid, checkout_time
+        FROM luggage WHERE regno=%s
+    """,(reg,))
+
+    rows = cur.fetchall()
+    conn.close()
+
+    if not stu:
+        return
+
+    name, email = stu
+
+    table = """
+<table border="1" style="border-collapse:collapse;width:100%;">
+<tr style="background-color:#1e3a8a;color:white;">
+<th>Item</th>
+<th>ULID</th>
+<th>Check-Out Time</th>
+</tr>
+"""
+    for r in rows:
+        table += f"<tr><td>{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td></tr>"
+    table += "</table>"
+
+    msg = MIMEMultipart()
+    msg['From'] = EMAIL
+    msg['To'] = email
+    msg['Subject'] = "Luggage Check-Out Confirmation"
+    body = f"""
+<html>
+
+<body style="font-family:Arial,sans-serif;">
+
+<p>
+Dear <b>{name} ({reg})</b>,
+</p>
+
+<p>
+The following items have been collected from
+<b>{dorm}</b>.
+</p>
+
+<br>
+
+{table}
+
+<br>
+
+<p>
+<b>Supervisor:</b> Mr./Ms. {supervisor}
+</p>
+
+<br>
+
+<p>
+Thank you.</p>
+
+<p>
+Regards,<br>
+<b>VIT Hostel Luggage Deposition System</b>
+</p>
+
+</body>
+
+</html>
+"""
+
+    msg.attach(MIMEText(body, "html"))
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+    server.login(EMAIL, PASSWORD)
+    server.send_message(msg)
+    server.quit()'''
 @app.route('/final_checkin', methods=['POST'])
 def final_checkin():
 
@@ -195,80 +430,6 @@ def final_checkin():
             "status": "error",
             "message": str(e)
         }), 500
-
-
-
-# ---------- EMAIL HELPERS ----------
-def send_checkin_email(reg, supervisor, dorm):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT student_name, email_id FROM students WHERE regno=%s",(reg,))
-    stu = cur.fetchone()
-    cur.execute("SELECT item, ulid, checkin_time FROM luggage WHERE regno=%s ORDER BY checkin_time",(reg,))
-    rows=cur.fetchall()
-    conn.close()
-    if not stu:
-        return
-    name,email=stu
-    table="""<table border="1" style="border-collapse:collapse;width:100%;">
-<tr><th>Item</th><th>ULID</th><th>Check-In Time</th></tr>"""
-    for r in rows:
-        table+=f"<tr><td>{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td></tr>"
-    table+="</table>"
-    msg=MIMEMultipart()
-    msg["From"]=EMAIL
-    msg["To"]=email
-    msg["Subject"]="Luggage Check-In Confirmation"
-    body=f"""<html><body>
-<p>Dear <b>{name} ({reg})</b>,</p>
-<p>The following items have been deposited in <b>{dorm}</b> under your account.</p>
-{table}
-<p><b>Supervisor:</b> Mr./Ms. {supervisor}</p>
-<p>Thank you.</p>
-<p>Regards,<br><b>VIT Hostel Luggage Deposition System</b></p>
-</body></html>"""
-    msg.attach(MIMEText(body,"html"))
-    server=smtplib.SMTP("smtp.gmail.com",587)
-    server.starttls()
-    server.login(EMAIL,PASSWORD)
-    server.send_message(msg)
-    server.quit()
-
-def send_checkout_email(reg, supervisor, dorm):
-    conn=get_connection()
-    cur=conn.cursor()
-    cur.execute("SELECT student_name,email_id FROM students WHERE regno=%s",(reg,))
-    stu=cur.fetchone()
-    cur.execute("SELECT item, ulid, checkout_time FROM luggage WHERE regno=%s ORDER BY checkout_time",(reg,))
-    rows=cur.fetchall()
-    conn.close()
-    if not stu:
-        return
-    name,email=stu
-    table="""<table border="1" style="border-collapse:collapse;width:100%;">
-<tr><th>Item</th><th>ULID</th><th>Check-Out Time</th></tr>"""
-    for r in rows:
-        table+=f"<tr><td>{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td></tr>"
-    table+="</table>"
-    msg=MIMEMultipart()
-    msg["From"]=EMAIL
-    msg["To"]=email
-    msg["Subject"]="Luggage Check-Out Confirmation"
-    body=f"""<html><body>
-<p>Dear <b>{name} ({reg})</b>,</p>
-<p>The following items have been collected from <b>{dorm}</b>.</p>
-{table}
-<p><b>Supervisor:</b> Mr./Ms. {supervisor}</p>
-<p>Thank you.</p>
-<p>Regards,<br><b>VIT Hostel Luggage Deposition System</b></p>
-</body></html>"""
-    msg.attach(MIMEText(body,"html"))
-    server=smtplib.SMTP("smtp.gmail.com",587)
-    server.starttls()
-    server.login(EMAIL,PASSWORD)
-    server.send_message(msg)
-    server.quit()
-
 
 # ---------- FINAL CHECKOUT ----------
 @app.route('/final_checkout', methods=['POST'])
