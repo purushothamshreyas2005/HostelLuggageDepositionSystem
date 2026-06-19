@@ -402,7 +402,10 @@ def final_checkout():
     conn.close()
 
     if remaining == 0:
-        send_checkout_email(reg, supervisor, dorm)
+        try:
+            send_checkout_email(reg, supervisor, dorm)
+        except Exception as e:
+            print("Checkout Email Error:", e)
 
     return jsonify({"status":"done"})
 
