@@ -495,23 +495,38 @@ function save(){
     showLoading();
 
     fetch("/final_checkin",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-            reg:document.getElementById("reg").value,
-            items,
-            supervisor_name:document.getElementById("sup_name").value,
-            dorm:document.getElementById("dorm").value
-        })
+    method:"POST",
+    headers:{
+        "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+        reg:document.getElementById("reg").value,
+        items,
+        supervisor_name:document.getElementById("sup_name").value,
+        dorm:document.getElementById("dorm").value
     })
-    .then(r=>r.json())
-    .then(data=>{
+})
+.then(async response=>{
+
+    let text = await response.text();
+
+    console.log("Status:", response.status);
+    console.log("Response:", text);
+
+    if(response.ok){
         showSuccess("Luggage Checked-In Successfully");
-    })
-    .catch(err=>{
-        showError("Something went wrong.");
-        console.log(err);
-    });
+    }else{
+        showError(text);
+    }
+
+})
+.catch(err=>{
+
+    console.log(err);
+
+    showError(err.toString());
+
+});
 
 }
 
