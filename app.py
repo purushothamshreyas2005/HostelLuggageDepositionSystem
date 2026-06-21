@@ -142,7 +142,37 @@ def final_checkin():
     supervisor = data.get('supervisor_name')
 
     conn = get_connection()
+    # Verify supervisor hostel matches student hostel
+
     cur = conn.cursor()
+
+    cur.execute("""
+    SELECT hostel
+    FROM students
+    WHERE regno = %s
+""", (reg,))
+    student = cur.fetchone()
+
+    cur.execute("""
+    SELECT hostel
+    FROM employee
+    WHERE supervisor_name = %s
+""", (supervisor,))
+    emp = cur.fetchone()
+
+    if not student or not emp:
+        conn.close()
+        return jsonify({
+        "status": "error",
+        "message": "Student or Supervisor not found."
+    }), 400
+
+    if student[0].strip().upper() != emp[0].strip().upper():
+        conn.close()
+        return jsonify({
+        "status": "error",
+        "message": "Access Denied. Cross-Hostel Operations are not allowed"
+    }), 403
 
     for it in items:
         cur.execute("""

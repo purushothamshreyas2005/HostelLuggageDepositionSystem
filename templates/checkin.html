@@ -527,17 +527,20 @@ function save(){
         dorm:document.getElementById("dorm").value
     })
 })
-.then(async response=>{
+.then(async response => {
 
-    let text = await response.text();
+    const data = await response.json();
 
-    console.log("Status:", response.status);
-    console.log("Response:", text);
+    console.log(data);
 
     if(response.ok){
+
         showSuccess("Luggage Checked-In Successfully");
+
     }else{
-        showError(text);
+
+        showError(data.message);
+
     }
 
 })
