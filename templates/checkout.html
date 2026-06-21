@@ -175,11 +175,35 @@ function fetchLuggage(){
     fetch("/get_luggage_full",{
         method:"POST",
         headers:{"Content-Type":"application/x-www-form-urlencoded"},
-        body:"reg="+reg
+        body:
+    "reg=" + encodeURIComponent(reg) +
+    "&dorm=" + encodeURIComponent(
+        document.getElementById("dorm").value
+    )
     })
     .then(r=>r.json())
     .then(data=>{
+            if (data.status === "wrong_dorm") {
 
+    document.getElementById("table").innerHTML = `
+        <div style="
+            color:#ef4444;
+            font-size:22px;
+            font-weight:bold;
+            text-align:center;
+            padding:30px;
+        ">
+            ❌ This student's luggage is not present in this dorm.<br><br>
+
+            📍 Luggage is currently stored in:<br>
+            <span style="color:#22c55e;">
+                ${data.correct_dorm}
+            </span>
+        </div>
+    `;
+
+    return;
+}
         dataStore = data;
         validated.clear();
 

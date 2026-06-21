@@ -464,10 +464,28 @@ def final_checkout():
 @app.route('/get_luggage_full', methods=['POST'])
 def get_luggage_full():
     reg = request.form.get("reg")
+    current_dorm=request.form.get("dorm")
 
     conn = get_connection()
     cur = conn.cursor()
+    cur.execute("""
+    SELECT dorm
+    FROM luggage
+    WHERE regno=%s
+      AND status='Stored'
+    LIMIT 1
+""", (reg,))
 
+    row = cur.fetchone()
+
+    if row:
+        actual_dorm = row[0]
+        if actual_dorm.strip() != current_dorm.strip():
+            conn.close()
+            return jsonify({
+                "status": "wrong_dorm",
+                "correct_dorm": actual_dorm
+        })
     cur.execute("""
         SELECT item, ulid, checkin_time, status
         FROM luggage
@@ -503,9 +521,29 @@ def delete_luggage():
 def get_luggage():
 
     reg = request.form.get("reg")
+    current_dorm=request.form.get("dorm")
 
     conn = get_connection()
     cur = conn.cursor()
+    cur.execute("""
+    SELECT dorm
+    FROM luggage
+    WHERE regno=%s
+      AND status='Stored'
+    LIMIT 1
+""", (reg,))
+
+    row = cur.fetchone()
+
+    if row:
+        actual_dorm = row[0]
+        if actual_dorm != current_dorm:
+            conn.close()
+
+            return jsonify({
+            "status": "wrong_dorm",
+            "correct_dorm": actual_dorm
+        })
 
     cur.execute("""
         SELECT item, ulid, status
