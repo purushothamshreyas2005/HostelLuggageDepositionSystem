@@ -404,15 +404,35 @@ Regards,<br>
 """
 
     msg.attach(MIMEText(body, "html"))
+    try:
+        print("========== EMAIL DEBUG ==========")
+        print("FROM :", EMAIL)
+        print("TO   :", email)
+        print("PASS LENGTH :", len(PASSWORD) if PASSWORD else 0)
 
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.ehlo()
-    server.starttls()
-    server.ehlo()
-    server.login(EMAIL, PASSWORD)
-    server.send_message(msg)
-    server.quit()
+        server = smtplib.SMTP("smtp.gmail.com", 587)
 
+        server.ehlo()
+
+        server.starttls()
+
+        server.ehlo()
+
+        server.login(EMAIL, PASSWORD)
+
+        server.send_message(msg)
+
+        server.quit()
+
+        print("✅ EMAIL SENT SUCCESSFULLY")
+
+    except Exception as e:
+
+        print("❌ EMAIL FAILED")
+
+        print(type(e))
+
+        print(e)
 
 # ---------- FINAL CHECKOUT ----------
 @app.route('/final_checkout', methods=['POST'])
