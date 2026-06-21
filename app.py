@@ -112,7 +112,7 @@ def get_student():
             "name":row[1],
             "phone":row[2],
             "email":row[3],
-            "room":f"{row[4]}-{row[5]}-{row[6]}"
+            "room":f"{row[4]}-{row[5]}-{row[6]}",
             "hostel":row[4]
         })
 
