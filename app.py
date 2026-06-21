@@ -169,12 +169,20 @@ def final_checkin():
 
             try:
                 cur.execute("""
-            INSERT INTO luggage
-            (ulid, regno, item, num_bags, slot_id,
-             checkin_time, status, dorm)
-            VALUES(%s,%s,%s,1,'AUTO',
-                   CURRENT_TIMESTAMP,'Stored',%s)
-        """, (ulid,reg,it["name"],dorm))
+    INSERT INTO luggage
+    (ulid, regno, item, num_bags, slot_id,
+     checkin_time, checkin_supervisor,
+     status, dorm)
+    VALUES(%s,%s,%s,1,'AUTO',
+           CURRENT_TIMESTAMP,%s,
+           'Stored',%s)
+""", (
+    ulid,
+    reg,
+    it["name"],
+    supervisor,   # 👈 NEW
+    dorm
+))
                 print("✅ INSERT SUCCESS")
 
             except Exception as e:
@@ -383,13 +391,18 @@ def final_checkout():
 
     for ulid in ulids:
         cur.execute("""
-            UPDATE luggage
-            SET status='Collected',
-                checkout_time=CURRENT_TIMESTAMP
-            WHERE ulid=%s
-            AND regno=%s
-            AND status='Stored'
-        """, (ulid, reg))
+    UPDATE luggage
+    SET status='Collected',
+        checkout_time=CURRENT_TIMESTAMP,
+        checkout_supervisor=%s
+    WHERE ulid=%s
+    AND regno=%s
+    AND status='Stored'
+""", (
+    supervisor,   # 👈 NEW
+    ulid,
+    reg
+))
 
     conn.commit()
 
