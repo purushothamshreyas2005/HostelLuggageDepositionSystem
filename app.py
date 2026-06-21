@@ -326,14 +326,24 @@ Regards,<br>
 
     msg.attach(MIMEText(body, "html"))
    
+    print("EMAIL =", EMAIL)
+    print("PASSWORD EXISTS =", PASSWORD is not None)
+    print("PASSWORD LENGTH =", len(PASSWORD) if PASSWORD else 0)
+    print("TO =", email)
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
+        server.ehlo()
+        server.starttls()
+        server.ehlo()  
+        print("LOGGING IN...")
+        server.login(EMAIL, PASSWORD)
+        print("LOGIN SUCCESS")
+        server.send_message(msg)
+        print("MAIL SENT")
+        server.quit()
 
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.ehlo()
-    server.starttls()
-    server.ehlo()
-    server.login(EMAIL, PASSWORD)
-    server.send_message(msg)
-    server.quit()
+    except Exception as e:
+        print("EMAIL ERROR >>>", repr(e))
 
 
 def send_checkout_email(reg, supervisor, dorm):
