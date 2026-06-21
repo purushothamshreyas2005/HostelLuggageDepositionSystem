@@ -229,11 +229,20 @@ def final_checkin():
 """, (new_ulids[-1],))
     print("CHECKED FROM DB:", cur.fetchone())
     conn.close()
-
     try:
+        print("CALLING EMAIL FUNCTION")
         send_checkin_email(reg, supervisor, dorm)
-    except Exception as e:
-        print("Email error:", e)
+        print("EMAIL FUNCTION FINISHED")
+
+    except BaseException as e:
+
+        print("################################")
+
+        print(type(e))
+
+        print(e)
+
+        print("################################")
 
     return jsonify({"status":"ok"})
 
