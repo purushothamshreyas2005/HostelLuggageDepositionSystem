@@ -113,6 +113,7 @@ def get_student():
             "phone":row[2],
             "email":row[3],
             "room":f"{row[4]}-{row[5]}-{row[6]}"
+            "hostel":row[4]
         })
 
     return jsonify({"status":"fail"})

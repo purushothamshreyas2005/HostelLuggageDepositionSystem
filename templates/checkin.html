@@ -191,6 +191,7 @@ tr:nth-child(even) { background:#1f2937; }
 <!-- 🔥 NEW (HIDDEN DATA FROM DASHBOARD) -->
 <input type="hidden" id="sup_name" value="{{ supervisor_name }}">
 <input type="hidden" id="dorm" value="{{ dorm }}">
+<input type="hidden" id="hostel" value="{{hostel}}">
 
 <div class="reg-box">
 <input id="reg" placeholder="Enter Registration Number">
@@ -280,6 +281,26 @@ document.getElementById("reg").addEventListener("input",()=>{
     .then(r=>r.json())
     .then(d=>{
         if(d.status==="ok"){
+        let supervisorHostel =
+    document.getElementById("hostel").value.trim().toUpperCase();
+
+let studentHostel =
+    d.hostel.trim().toUpperCase();
+
+if(supervisorHostel !== studentHostel){
+
+    studentLoaded = false;
+
+    document.getElementById("student").innerHTML = "";
+
+    document.getElementById("student_msg").innerHTML =
+    "<span style='color:#ef4444;font-weight:bold;'>❌ Access Denied. Supervisor and Student belong to different hostels.</span>";
+
+    items = [];
+    render();
+
+    return;
+}
 
     studentLoaded = true;
 
