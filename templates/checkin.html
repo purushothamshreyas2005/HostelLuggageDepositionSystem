@@ -562,38 +562,134 @@ function printBarcodes(){
         return;
     }
 
-    let content="";
+    let content = "";
 
-    items.forEach(i=>{
-        if(i.ulids){
-            i.ulids.forEach(u=>{
-                content+=`
-                <div style="text-align:center;margin:10px;">
-                    <img src="/barcode/${u}" style="width:150px;"><br>
-                    ${u}
-                </div>`;
+    items.forEach(item => {
+
+        if(item.ulids){
+
+            item.ulids.forEach(ulid => {
+
+                content += `
+
+                <div class="label">
+
+                    <img src="/barcode/${ulid}" class="barcode">
+
+                    <div class="ulid">
+                        ${ulid}
+                    </div>
+
+                    <div class="item">
+                        ${item.name}
+                    </div>
+
+                </div>
+
+                `;
+
             });
+
         }
+
     });
 
-    let w=window.open("","_blank","width=800,height=600");
+    let w = window.open("", "_blank");
 
     w.document.write(`
-    <html>
-    <head>
-    <style>body{text-align:center;font-family:sans-serif}</style>
-    </head>
-    <body>${content}</body>
-    </html>
-    `);
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<style>
+
+@page{
+
+    margin:0;
+
+}
+
+body{
+
+    margin:0;
+
+    font-family:Arial,sans-serif;
+
+}
+
+.label{
+
+    width:58mm;
+    height:38mm;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    page-break-after:always;
+
+    box-sizing:border-box;
+
+}
+
+.barcode{
+
+    width:50mm;
+
+    height:auto;
+
+}
+
+.ulid{
+
+    margin-top:4mm;
+
+    font-size:11pt;
+
+    font-weight:bold;
+
+}
+
+.item{
+
+    margin-top:2mm;
+
+    font-size:10pt;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+${content}
+
+</body>
+
+</html>
+
+`);
 
     w.document.close();
 
-    w.onload=function(){
+    w.onload = function(){
+
         w.focus();
+
         w.print();
+
         w.close();
+
     };
+
 }
 
 /* FETCH */
