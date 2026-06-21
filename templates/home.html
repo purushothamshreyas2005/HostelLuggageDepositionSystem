@@ -369,6 +369,20 @@ input:checked + .slider:before{
     transform:translateX(24px);
 
 }
+.theme-text{
+
+    font-size:14px;
+
+    font-weight:500;
+
+    opacity:0.95;
+
+}
+.switch-container{
+
+    gap:6px;
+
+}
 
 </style>
 </head>
@@ -381,14 +395,14 @@ input:checked + .slider:before{
 
     <span>Choose Theme</span>
 
-    <span>🌙</span>
+    <span class="theme-text">Dark</span>
 
     <label class="switch">
         <input type="checkbox" id="themeSwitch">
         <span class="slider"></span>
     </label>
 
-    <span>☀️</span>
+    <span class="theme-text">Light</span>
 
 </div>
 <label class="switch">
