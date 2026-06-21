@@ -209,6 +209,19 @@ h1 {
 <!-- 🔥 CLOCK -->
 <div class="clock" id="clock"></div>
 
+<div id="themeToggle"
+     onclick="toggleTheme()"
+     style="
+        position:absolute;
+        top:60px;
+        right:30px;
+        font-size:30px;
+        cursor:pointer;
+        user-select:none;
+     ">
+🌙
+</div>
+
 <div class="container">
 
 <img src="https://vit.ac.in/wp-content/uploads/2023/06/header-logo-2048x604.webp" class="logo">
@@ -322,7 +335,58 @@ function submitLogin(){
         alert("Invalid Credentials");
     }
 }
+/* ===========================
+   GLOBAL THEME
+=========================== */
 
+function applyTheme(){
+
+    let theme = localStorage.getItem("theme") || "dark";
+
+    if(theme === "light"){
+
+        document.body.style.background =
+            "linear-gradient(135deg,#eef2ff,#dbeafe)";
+
+        document.body.style.color = "#111827";
+
+        document.getElementById("themeToggle").innerHTML = "☀️";
+
+    }
+    else{
+
+        document.body.style.background =
+            "linear-gradient(135deg,#0b1220,#1e3a8a)";
+
+        document.body.style.color = "white";
+
+        document.getElementById("themeToggle").innerHTML = "🌙";
+
+    }
+
+}
+
+function toggleTheme(){
+
+    let current =
+        localStorage.getItem("theme") || "dark";
+
+    if(current === "dark"){
+
+        localStorage.setItem("theme","light");
+
+    }
+    else{
+
+        localStorage.setItem("theme","dark");
+
+    }
+
+    applyTheme();
+
+}
+
+applyTheme();
 </script>
 
 </body>
