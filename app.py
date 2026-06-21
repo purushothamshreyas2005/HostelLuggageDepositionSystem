@@ -166,6 +166,7 @@ def final_checkin():
             print("REG  :", reg)
             print("ITEM :", it["name"])
             print("DORM :", dorm)
+            print("SUPERVISOR:",repr(supervisor))
 
             try:
                 cur.execute("""
@@ -190,6 +191,12 @@ def final_checkin():
                 print(e)
 
     conn.commit()
+    cur.execute("""
+    SELECT checkin_supervisor
+    FROM luggage
+    WHERE ulid=%s
+""", (new_ulids[-1],))
+    print("CHECKED FROM DB:", cur.fetchone())
     conn.close()
 
     try:
