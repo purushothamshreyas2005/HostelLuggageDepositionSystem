@@ -8,15 +8,25 @@ from flask import session, redirect
 import csv
 import smtplib
 import os
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
 
 app = Flask(__name__)
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-
 EMAIL = os.environ.get("EMAIL")
 PASSWORD = os.environ.get("PASSWORD")
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY")
+
+configuration = sib_api_v3_sdk.Configuration()
+configuration.api_key['api-key'] = BREVO_API_KEY
+
+brevo_api = sib_api_v3_sdk.TransactionalEmailsApi(
+    sib_api_v3_sdk.ApiClient(configuration)
+)
 
 def get_connection():
     return psycopg2.connect(DATABASE_URL)
