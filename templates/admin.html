@@ -232,11 +232,17 @@ tr:hover {
 
 <!-- SEARCH -->
 <div class="top">
-<input id="reg" placeholder="Search RegNo">
-<button class="btn-blue" onclick="searchReg()">Search</button>
 
-<input id="ulid" placeholder="Search ULID">
-<button class="btn-blue" onclick="searchULID()">Search</button>
+    <input
+        id="searchBox"
+        placeholder="Search by Reg No, ULID or Student Name"
+        style="width:400px;"
+    >
+
+    <button class="btn-blue" onclick="universalSearch()">
+        Search
+    </button>
+
 </div>
 
 <!-- ACTIONS -->
@@ -256,11 +262,14 @@ function renderTable(data){
 let html = `
 <table>
 <tr>
-<th>RegNo</th>
-<th>Name</th>
+<th>Reg No</th>
+<th>Student</th>
 <th>Item</th>
 <th>ULID</th>
+<th>Dorm</th>
 <th>Status</th>
+<th>Check-In Supervisor</th>
+<th>Check-Out Supervisor</th>
 <th>Check-In</th>
 <th>Check-Out</th>
 </tr>`;
@@ -272,7 +281,10 @@ html+=`
 <td>${i.name || "-"}</td>
 <td>${i.item || "-"}</td>
 <td>${i.ulid || "-"}</td>
+<td>${i.dorm || "-"}</td>
 <td>${i.status || "-"}</td>
+<td>${i.checkinSupervisor || "-"}</td>
+<td>${i.checkoutSupervisor || "-"}</td>
 <td>${i.in || "-"}</td>
 <td>${i.out || "-"}</td>
 </tr>`;
@@ -289,41 +301,52 @@ fetch('/get_admin_luggage',{method:'POST'})
 .then(renderTable);
 }
 
-function searchReg(){
+function universalSearch(){
 
-fetch('/admin_search_reg',{
-method:'POST',
-headers:{"Content-Type":"application/x-www-form-urlencoded"},
-body:"reg="+document.getElementById("reg").value
+fetch('/admin_search',{
+
+    method:'POST',
+
+    headers:{
+        "Content-Type":"application/x-www-form-urlencoded"
+    },
+
+    body:"query="+encodeURIComponent(
+        document.getElementById("searchBox").value
+    )
+
 })
+
 .then(r=>r.json())
+
 .then(data=>{
-let formatted = data.map(i=>({
-    reg: document.getElementById("reg").value,
-    item: i[0],
-    ulid: i[1],
-    status: i[2]
-}));
-renderTable(formatted);
-});
 
-}
+    let formatted = data.map(i=>({
 
-function searchULID(){
+        reg:i[0],
 
-fetch('/admin_search_ulid',{
-method:'POST',
-headers:{"Content-Type":"application/x-www-form-urlencoded"},
-body:"ulid="+document.getElementById("ulid").value
-})
-.then(r=>r.json())
-.then(i=>{
-renderTable([{
-    reg: i[0],
-    name: i[1],
-    item: i[2],
-    status: i[3]
-}]);
+        name:i[1],
+
+        item:i[2],
+
+        ulid:i[3],
+
+        dorm:i[4],
+
+        status:i[5],
+
+        checkinSupervisor:i[6],
+
+        checkoutSupervisor:i[7],
+
+        in:i[8],
+
+        out:i[9]
+
+    }));
+
+    renderTable(formatted);
+
 });
 
 }
