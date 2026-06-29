@@ -194,7 +194,18 @@ tr:hover {
 
 <div class="container">
 
-<h2>{{ hostel }} ADMIN DASHBOARD</h2>
+<h2>
+    🏠 {{ hostel }} HOSTEL ADMINISTRATION
+</h2>
+
+<p style="
+text-align:center;
+color:#94a3b8;
+margin-top:-10px;
+margin-bottom:25px;
+">
+Hostel Luggage Deposition System
+</p>
 
 <div class="stats">
 
@@ -246,9 +257,31 @@ tr:hover {
 </div>
 
 <!-- ACTIONS -->
+<h3 style="
+margin-top:30px;
+margin-bottom:15px;
+text-align:center;
+color:#cbd5e1;
+">
+⚡ Quick Actions
+</h3>
+
 <div class="top">
-<button class="btn-green" onclick="loadAll()">Load All</button>
-<button class="btn-red" onclick="download()">Download Report</button>
+
+<button class="btn-green"
+onclick="download()">
+
+📥 Download Complete Report
+
+</button>
+
+<button class="btn-blue"
+onclick="location.reload()">
+
+🔄 Refresh Dashboard
+
+</button>
+
 </div>
 
 <div id="table"></div>
@@ -295,11 +328,7 @@ html+="</table>";
 document.getElementById("table").innerHTML = html;
 }
 
-function loadAll(){
-fetch('/get_admin_luggage',{method:'POST'})
-.then(r=>r.json())
-.then(renderTable);
-}
+
 
 function universalSearch(){
 
