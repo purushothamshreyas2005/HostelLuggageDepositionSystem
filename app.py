@@ -679,6 +679,72 @@ def admin_dashboard():
         return redirect('/')
     return render_template("admin.html", hostel=session['hostel_type'])
 
+@app.route('/admin_stats', methods=['POST'])
+def admin_stats():
+
+    if not admin_required():
+        return jsonify({})
+
+    hostel = session.get("hostel_type")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Total Students
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM students
+        WHERE hostel=%s
+    """, (hostel,))
+    students = cur.fetchone()[0]
+
+    # Total Supervisors
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM employee
+        WHERE hostel=%s
+    """, (hostel,))
+    supervisors = cur.fetchone()[0]
+
+    # Total Luggage
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM luggage L
+        JOIN students S ON L.regno=S.regno
+        WHERE S.hostel=%s
+    """, (hostel,))
+    luggage = cur.fetchone()[0]
+
+    # Currently Stored
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM luggage L
+        JOIN students S ON L.regno=S.regno
+        WHERE S.hostel=%s
+        AND L.status='Stored'
+    """, (hostel,))
+    stored = cur.fetchone()[0]
+
+    # Collected
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM luggage L
+        JOIN students S ON L.regno=S.regno
+        WHERE S.hostel=%s
+        AND L.status='Collected'
+    """, (hostel,))
+    collected = cur.fetchone()[0]
+
+    conn.close()
+
+    return jsonify({
+        "students": students,
+        "supervisors": supervisors,
+        "luggage": luggage,
+        "stored": stored,
+        "collected": collected
+    })
+
 @app.route('/get_admin_luggage', methods=['POST'])
 def get_admin_luggage():
 
