@@ -331,16 +331,7 @@ renderTable([{
 function download(){
 window.location = "/admin_report";
 }
-let theme = localStorage.getItem("theme");
 
-if(theme === "light"){
-
-    document.body.style.background =
-        "linear-gradient(135deg,#eef2ff,#dbeafe)";
-
-    document.body.style.color = "#111827";
-
-}
 
 fetch('/admin_stats',{
 
