@@ -448,33 +448,32 @@ Regards,<br>
 
     msg.attach(MIMEText(body, "html"))
     try:
-        print("========== EMAIL DEBUG ==========")
-        print("FROM :", EMAIL)
-        print("TO   :", email)
-        print("PASS LENGTH :", len(PASSWORD) if PASSWORD else 0)
 
-        server = smtplib.SMTP("smtp.gmail.com", 587)
+        sender = {
+        "name": "VIT Hostel Luggage Deposition System",
+        "email": EMAIL
+    }
 
-        server.ehlo()
+        receiver = [{
+        "email": email,
+        "name": name
+    }]
 
-        server.starttls()
+        email_message = sib_api_v3_sdk.SendSmtpEmail(
+        sender=sender,
+        to=receiver,
+        subject="Luggage Check-Out Confirmation",
+        html_content=body
+    )
 
-        server.ehlo()
+        response = brevo_api.send_transac_email(email_message)
 
-        server.login(EMAIL, PASSWORD)
+        print("✅ Check-Out Email Sent")
+        print(response)
 
-        server.send_message(msg)
+    except ApiException as e:
 
-        server.quit()
-
-        print("✅ EMAIL SENT SUCCESSFULLY")
-
-    except Exception as e:
-
-        print("❌ EMAIL FAILED")
-
-        print(type(e))
-
+        print("❌ Brevo Error")
         print(e)
 
 # ---------- FINAL CHECKOUT ----------
