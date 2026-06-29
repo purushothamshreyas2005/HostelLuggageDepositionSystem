@@ -745,6 +745,88 @@ def admin_stats():
         "collected": collected
     })
 
+@app.route('/admin_search', methods=['POST'])
+def admin_search():
+
+    if not admin_required():
+        return jsonify([])
+
+    query = request.form.get("query", "").strip()
+    hostel = session.get("hostel_type")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # ---------- Search by ULID ----------
+    if "-" in query:
+
+        cur.execute("""
+            SELECT
+                L.regno,
+                S.student_name,
+                L.item,
+                L.ulid,
+                L.dorm,
+                L.status,
+                L.checkin_supervisor,
+                L.checkout_supervisor,
+                L.checkin_time,
+                L.checkout_time
+            FROM luggage L
+            JOIN students S ON L.regno=S.regno
+            WHERE L.ulid=%s
+            AND S.hostel=%s
+        """, (query, hostel))
+
+    # ---------- Search by RegNo ----------
+    elif query.upper().startswith("23"):
+
+        cur.execute("""
+            SELECT
+                L.regno,
+                S.student_name,
+                L.item,
+                L.ulid,
+                L.dorm,
+                L.status,
+                L.checkin_supervisor,
+                L.checkout_supervisor,
+                L.checkin_time,
+                L.checkout_time
+            FROM luggage L
+            JOIN students S ON L.regno=S.regno
+            WHERE L.regno=%s
+            AND S.hostel=%s
+        """, (query.upper(), hostel))
+
+    # ---------- Search by Student Name ----------
+    else:
+
+        cur.execute("""
+            SELECT
+                L.regno,
+                S.student_name,
+                L.item,
+                L.ulid,
+                L.dorm,
+                L.status,
+                L.checkin_supervisor,
+                L.checkout_supervisor,
+                L.checkin_time,
+                L.checkout_time
+            FROM luggage L
+            JOIN students S ON L.regno=S.regno
+            WHERE LOWER(S.student_name)
+            LIKE LOWER(%s)
+            AND S.hostel=%s
+        """, ("%" + query + "%", hostel))
+
+    rows = cur.fetchall()
+
+    conn.close()
+
+    return jsonify(rows)
+
 @app.route('/get_admin_luggage', methods=['POST'])
 def get_admin_luggage():
 
