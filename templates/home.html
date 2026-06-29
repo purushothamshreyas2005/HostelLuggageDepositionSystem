@@ -201,19 +201,7 @@ h1 {
 .close-btn:hover {
     background:#b91c1c;
 }
-.switch{
 
-    position:absolute;
-
-    top:25px;
-
-    right:30px;
-
-    width:60px;
-
-    height:34px;
-
-}
 
 .switch input{
 
@@ -275,37 +263,9 @@ input:checked + .slider:before{
 
 }
 
-.switch-container{
 
-    position:absolute;
 
-    top:55px;
 
-    right:30px;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    font-size:14px;
-
-    opacity:0.95;
-
-}
-
-.switch{
-
-    position:relative;
-
-    display:inline-block;
-
-    width:50px;
-
-    height:26px;
-
-}
 
 .switch input{
 
@@ -378,11 +338,7 @@ input:checked + .slider:before{
     opacity:0.95;
 
 }
-.switch-container{
 
-    gap:6px;
-
-}
 
 </style>
 </head>
@@ -391,37 +347,7 @@ input:checked + .slider:before{
 
 <!-- 🔥 CLOCK -->
 <div class="clock" id="clock"></div>
-<div class="switch-container">
 
-    <span>Choose Theme</span>
-
-    <span class="theme-text">Dark</span>
-
-    <label class="switch">
-        <input type="checkbox" id="themeSwitch">
-        <span class="slider"></span>
-    </label>
-
-    <span class="theme-text">Light</span>
-
-</div>
-<label class="switch">
-    <input type="checkbox" id="themeSwitch">
-    <span class="slider"></span>
-</label>
-
-<div id="themeToggle"
-     onclick="toggleTheme()"
-     style="
-        position:absolute;
-        top:60px;
-        right:30px;
-        font-size:30px;
-        cursor:pointer;
-        user-select:none;
-     ">
-🌙
-</div>
 
 <div class="container">
 
@@ -536,79 +462,7 @@ function submitLogin(){
         alert("Invalid Credentials");
     }
 }
-/* ===========================
-   GLOBAL THEME
-=========================== */
 
-function applyTheme(){
-
-    let theme = localStorage.getItem("theme") || "dark";
-
-    if(theme === "light"){
-
-        document.body.style.background =
-            "linear-gradient(135deg,#eef2ff,#dbeafe)";
-
-        document.body.style.color = "#111827";
-
-        document.getElementById("themeToggle").innerHTML = "☀️";
-
-    }
-    else{
-
-        document.body.style.background =
-            "linear-gradient(135deg,#0b1220,#1e3a8a)";
-
-        document.body.style.color = "white";
-
-        document.getElementById("themeToggle").innerHTML = "🌙";
-
-    }
-
-}
-
-function toggleTheme(){
-
-    let current =
-        localStorage.getItem("theme") || "dark";
-
-    if(current === "dark"){
-
-        localStorage.setItem("theme","light");
-
-    }
-    else{
-
-        localStorage.setItem("theme","dark");
-
-    }
-
-    applyTheme();
-
-}
-
-applyTheme();
-
-const sw = document.getElementById("themeSwitch");
-
-sw.checked = localStorage.getItem("theme") === "light";
-
-sw.onchange = function(){
-
-    if(sw.checked){
-
-        localStorage.setItem("theme","light");
-
-    }
-    else{
-
-        localStorage.setItem("theme","dark");
-
-    }
-
-    location.reload();
-
-};
 </script>
 
 </body>
