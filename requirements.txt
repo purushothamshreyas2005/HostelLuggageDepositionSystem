@@ -3,3 +3,4 @@ psycopg2-binary
 python-barcode
 Pillow
 gunicorn
+sib-api-v3-sdk
