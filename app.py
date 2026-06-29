@@ -341,19 +341,33 @@ Regards,<br>
     print("PASSWORD LENGTH =", len(PASSWORD) if PASSWORD else 0)
     print("TO =", email)
     try:
-        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=15)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()  
-        print("LOGGING IN...")
-        server.login(EMAIL, PASSWORD)
-        print("LOGIN SUCCESS")
-        server.send_message(msg)
-        print("MAIL SENT")
-        server.quit()
 
-    except Exception as e:
-        print("EMAIL ERROR >>>", repr(e))
+        sender = {
+        "name": "VIT Hostel Luggage Deposition System",
+        "email": EMAIL
+    }
+
+        receiver = [{
+        "email": email,
+        "name": name
+    }]
+
+        email_message = sib_api_v3_sdk.SendSmtpEmail(
+        sender=sender,
+        to=receiver,
+        subject="Luggage Check-In Confirmation",
+        html_content=body
+    )
+
+        response = brevo_api.send_transac_email(email_message)
+
+        print("✅ Brevo Email Sent")
+        print(response)
+
+    except ApiException as e:
+
+        print("❌ Brevo Error")
+        print(e)
 
 
 def send_checkout_email(reg, supervisor, dorm):
