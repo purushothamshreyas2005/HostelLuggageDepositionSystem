@@ -181,13 +181,12 @@ tr:nth-child(even) { background:#1f2937; }
 
 .spinner{
 
-    width:18px;
+    width:15px;
 
-    height:18px;
+    height:15px;
 
-    border:3px solid #374151;
-
-    border-top:3px solid var(--primary);
+border:2px solid #374151;
+border-top:2px solid var(--primary);
 
     border-radius:50%;
 
@@ -211,7 +210,33 @@ tr:nth-child(even) { background:#1f2937; }
     }
 
 }
+.reg-wrapper{
 
+    position:relative;
+
+    display:inline-block;
+
+}
+
+.reg-wrapper input{
+
+    padding-right:45px;
+
+}
+
+.reg-wrapper .spinner{
+
+    position:absolute;
+
+    right:15px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    margin-left:0;
+
+}
 </style>
 </head>
 
@@ -227,8 +252,10 @@ tr:nth-child(even) { background:#1f2937; }
 <input type="hidden" id="hostel" value="{{hostel}}">
 
 <div class="reg-box">
+    <div class="reg-wrapper">
 <input id="reg" placeholder="Enter Registration Number">
 <span id="loadingSpinner" class="spinner" style="display:none;"></span>
+</div>
 </div>
 
 <!-- Student Fetch Status Message -->
