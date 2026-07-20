@@ -179,6 +179,39 @@ tr:nth-child(even) { background:#1f2937; }
 
 }
 
+.spinner{
+
+    width:18px;
+
+    height:18px;
+
+    border:3px solid #374151;
+
+    border-top:3px solid var(--primary);
+
+    border-radius:50%;
+
+    display:inline-block;
+
+    margin-left:10px;
+
+    animation:spin .8s linear infinite;
+
+    vertical-align:middle;
+}
+
+@keyframes spin{
+
+    from{
+        transform:rotate(0deg);
+    }
+
+    to{
+        transform:rotate(360deg);
+    }
+
+}
+
 </style>
 </head>
 
@@ -195,6 +228,7 @@ tr:nth-child(even) { background:#1f2937; }
 
 <div class="reg-box">
 <input id="reg" placeholder="Enter Registration Number">
+<span id="loadingSpinner" class="spinner" style="display:none;"></span>
 </div>
 
 <!-- Student Fetch Status Message -->
@@ -272,14 +306,17 @@ function ulidsReady(){
 /* FETCH STUDENT */
 document.getElementById("reg").addEventListener("input",()=>{
     let reg=document.getElementById("reg").value.trim().toUpperCase();
-
+document.getElementById("loadingSpinner").style.display = "inline-block";
     fetch("/get_student",{
         method:"POST",
         headers:{"Content-Type":"application/x-www-form-urlencoded"},
         body:"reg="+reg
     })
     .then(r=>r.json())
-    .then(d=>{
+.finally(()=>{
+    document.getElementById("loadingSpinner").style.display = "none";
+})
+.then(d=>{
         if(d.status==="ok"){
         let supervisorHostel =
     document.getElementById("hostel").value.trim().toUpperCase();
