@@ -764,7 +764,9 @@ function loadExisting(reg){
         headers:{
             "Content-Type":"application/x-www-form-urlencoded"
         },
-        body:"reg="+reg
+        body:
+    "reg=" + encodeURIComponent(reg) +
+    "&dorm=" + encodeURIComponent(document.getElementById("dorm").value)
     })
     .then(r=>r.json())
     .then(data=>{
