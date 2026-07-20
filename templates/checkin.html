@@ -145,7 +145,7 @@ tr:nth-child(even) { background:#1f2937; }
 
 }
 
-.spinner{
+.popup-spinner{
 
     width:65px;
     height:65px;
@@ -179,7 +179,7 @@ tr:nth-child(even) { background:#1f2937; }
 
 }
 
-.spinner{
+.input-spinner{
 
     width:15px;
 
@@ -224,7 +224,7 @@ border-top:2px solid var(--primary);
 
 }
 
-.reg-wrapper .spinner{
+.reg-wrapper .input-spinner{
 
     position:absolute;
 
@@ -254,7 +254,7 @@ border-top:2px solid var(--primary);
 <div class="reg-box">
     <div class="reg-wrapper">
 <input id="reg" placeholder="Enter Registration Number">
-<span id="loadingSpinner" class="spinner" style="display:none;"></span>
+<span id="loadingSpinner" class="input-spinner" style="display:none;"></span>
 </div>
 </div>
 
@@ -446,7 +446,7 @@ function showLoading(){
 
     document.getElementById("loadingContent").innerHTML=`
 
-        <div class="spinner"></div>
+        <div class="popup-spinner"></div>
 
         <h2>Processing...</h2>
 
@@ -873,7 +873,7 @@ document.querySelectorAll("input").forEach(inp=>{
 
         <div id="loadingContent">
 
-            <div class="spinner"></div>
+            <div class="popup-spinner"></div>
 
             <h2>Processing...</h2>
 
